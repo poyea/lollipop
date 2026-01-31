@@ -1,0 +1,18 @@
+[project]
+name = "lollipop"
+version = "0.1.0"
+description = "Lollipop"
+requires-python = ">=3.12"
+dependencies = [
+    "cupy-cuda11x>=13.6.0",
+    "pillow>=12.1.0",
+]
+
+[dependency-groups]
+dev = [
+    "black>=26.1.0",
+]
+
+[tool.black]
+line-length = 88
+target-version = ["py312"]

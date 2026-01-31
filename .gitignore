@@ -1,0 +1,20 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+dist/
+build/
+
+# Virtual environment
+.venv/
+
+# UV
+uv.lock
+
+# Generated files
+*.png
+*.npy
+
+# OS
+Thumbs.db
+Desktop.ini

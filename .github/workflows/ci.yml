@@ -1,0 +1,31 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v4
+      - run: uv sync --dev
+      - run: uv run black --check .
+
+  typecheck:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v4
+      - run: uv sync --dev
+      - run: uv run python -m py_compile lollipop/__init__.py
+      - run: uv run python -m py_compile lollipop/kernels/__init__.py
+      - run: uv run python -m py_compile lollipop/kernels/mandelbrot.py
+      - run: uv run python -m py_compile lollipop/kernels/julia.py
+      - run: uv run python -m py_compile lollipop/kernels/nbody.py
+      - run: uv run python -m py_compile lollipop/kernels/histogram.py
+      - run: uv run python -m py_compile lollipop/kernels/prefix_sum.py
+      - run: uv run python -m py_compile lollipop/kernels/reaction_diffusion.py
