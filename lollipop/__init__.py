@@ -1,3 +1,4 @@
+from lollipop.kernels import baccarat
 from lollipop.kernels import bitonic_sort
 from lollipop.kernels import histogram
 from lollipop.kernels import julia
@@ -10,6 +11,7 @@ from lollipop.kernels import reduction
 from lollipop.kernels import voronoi
 
 __all__ = [
+    "baccarat",
     "bitonic_sort",
     "histogram",
     "julia",
