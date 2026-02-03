@@ -13,7 +13,7 @@ def main():
     cp.zeros(1)
     cp.cuda.Stream.null.synchronize()
 
-    n = 1_000_000
+    n = 100_000_000
 
     spot = cp.full(n, 100.0, dtype=cp.float32)
     strike = cp.linspace(80, 120, n, dtype=cp.float32)

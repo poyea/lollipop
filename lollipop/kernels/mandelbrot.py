@@ -10,7 +10,7 @@ _BLOCK_SIZE = (16, 16)
 def _get_kernel() -> cp.RawKernel:
     global _kernel
     if _kernel is None:
-        source = (_SOURCES_DIR / "mandelbrot.cu").read_text()
+        source = (_SOURCES_DIR / "mandelbrot.cu").read_text(encoding="utf-8")
         _kernel = cp.RawKernel(source, "mandelbrot")
     return _kernel
 

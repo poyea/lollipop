@@ -14,7 +14,7 @@ def main():
     cp.zeros(1)
     cp.cuda.Stream.null.synchronize()
 
-    n = 10_000_000
+    n = 100_000_000
     data = cp.ones(n, dtype=cp.float32)
 
     cp.cuda.Stream.null.synchronize()

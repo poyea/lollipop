@@ -13,7 +13,7 @@ def main():
     cp.zeros(1)
     cp.cuda.Stream.null.synchronize()
 
-    num_paths = 10_000_000
+    num_paths = 100_000_000
 
     cp.cuda.Stream.null.synchronize()
     start = time.perf_counter()

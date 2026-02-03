@@ -12,8 +12,12 @@
  *
  *  Card values: 0 = {10,J,Q,K} (128 cards), 1-9 = face value (32 each).
  *
+ *  Pair tracking (every two consecutive hands):
+ *      repeat = same outcome twice  (PP, BB, TT)
+ *      change = different outcomes   (PB, BP, PT, TP, BT, TB)
+ *
  *  Parameters:
- *      results   — uint32[4]: [player_wins, banker_wins, ties, total_hands]
+ *      results   — uint32[6]: [player, banker, tie, hands, repeats, changes]
  *      num_shoes — number of shoes to simulate (one per thread)
  *      seed      — RNG seed
  *
@@ -53,6 +57,8 @@ void baccarat(unsigned int* results, int num_shoes, unsigned int seed) {
 
     /* Deal hands until cut card (~1 deck / 52 cards from end) */
     unsigned int lp = 0, lb = 0, lt = 0, lh = 0;
+    unsigned int l_repeat = 0, l_change = 0;
+    int prev = -1; /* previous outcome: 0=player, 1=banker, 2=tie, -1=none */
 
     while (cards_left > 52) {
         int p1 = draw_card(count, cards_left, rng);
@@ -98,15 +104,25 @@ void baccarat(unsigned int* results, int num_shoes, unsigned int seed) {
         }
 
         /* Record outcome locally */
-        if      (ptotal > btotal) lp++;
-        else if (btotal > ptotal) lb++;
-        else                      lt++;
+        int outcome;
+        if      (ptotal > btotal) { lp++; outcome = 0; }
+        else if (btotal > ptotal) { lb++; outcome = 1; }
+        else                      { lt++; outcome = 2; }
         lh++;
+
+        /* Track repeats and changes between consecutive hands */
+        if (prev >= 0) {
+            if (outcome == prev) l_repeat++;
+            else                 l_change++;
+        }
+        prev = outcome;
     }
 
-    /* Accumulate per-shoe results: 0=player, 1=banker, 2=tie, 3=hands */
-    atomicAdd(&results[0], lp);
-    atomicAdd(&results[1], lb);
-    atomicAdd(&results[2], lt);
-    atomicAdd(&results[3], lh);
+    /* Accumulate per-shoe results */
+    atomicAdd(&results[0], lp);        /* player wins   */
+    atomicAdd(&results[1], lb);        /* banker wins   */
+    atomicAdd(&results[2], lt);        /* ties          */
+    atomicAdd(&results[3], lh);        /* total hands   */
+    atomicAdd(&results[4], l_repeat);  /* repeat pairs  */
+    atomicAdd(&results[5], l_change);  /* change pairs  */
 }

@@ -9,7 +9,7 @@ _kernel = None
 def _get_kernel() -> cp.RawKernel:
     global _kernel
     if _kernel is None:
-        source = (_SOURCES_DIR / "bitonic_sort.cu").read_text()
+        source = (_SOURCES_DIR / "bitonic_sort.cu").read_text(encoding="utf-8")
         _kernel = cp.RawKernel(source, "bitonic_sort")
     return _kernel
 

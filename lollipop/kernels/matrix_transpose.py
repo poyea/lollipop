@@ -11,7 +11,7 @@ _BLOCK_ROWS = 8
 def _get_kernel() -> cp.RawKernel:
     global _kernel
     if _kernel is None:
-        source = (_SOURCES_DIR / "matrix_transpose.cu").read_text()
+        source = (_SOURCES_DIR / "matrix_transpose.cu").read_text(encoding="utf-8")
         _kernel = cp.RawKernel(source, "matrix_transpose")
     return _kernel
 

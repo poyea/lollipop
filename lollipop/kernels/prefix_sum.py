@@ -9,7 +9,7 @@ _kernel = None
 def _get_kernel() -> cp.RawKernel:
     global _kernel
     if _kernel is None:
-        source = (_SOURCES_DIR / "prefix_sum.cu").read_text()
+        source = (_SOURCES_DIR / "prefix_sum.cu").read_text(encoding="utf-8")
         _kernel = cp.RawKernel(source, "prefix_sum_blelloch")
     return _kernel
 

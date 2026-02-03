@@ -16,8 +16,10 @@ def _get_kernel() -> cp.RawKernel:
     return _kernel
 
 
-def baccarat(num_shoes: int = 1_000_000, seed: int = 42) -> tuple[int, int, int, int]:
-    results = cp.zeros(4, dtype=cp.uint32)
+def baccarat(
+    num_shoes: int = 1_000_000, seed: int = 42
+) -> tuple[int, int, int, int, int, int]:
+    results = cp.zeros(6, dtype=cp.uint32)
     grid = (num_shoes + _BLOCK_SIZE - 1) // _BLOCK_SIZE
 
     _get_kernel()(
@@ -27,4 +29,4 @@ def baccarat(num_shoes: int = 1_000_000, seed: int = 42) -> tuple[int, int, int,
     )
 
     r = results.get()
-    return int(r[0]), int(r[1]), int(r[2]), int(r[3])
+    return int(r[0]), int(r[1]), int(r[2]), int(r[3]), int(r[4]), int(r[5])

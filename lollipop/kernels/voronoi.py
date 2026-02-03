@@ -11,7 +11,7 @@ _BLOCK_SIZE = (16, 16)
 def _get_kernels() -> tuple:
     global _jfa_kernel, _color_kernel
     if _jfa_kernel is None:
-        source = (_SOURCES_DIR / "voronoi.cu").read_text()
+        source = (_SOURCES_DIR / "voronoi.cu").read_text(encoding="utf-8")
         _jfa_kernel = cp.RawKernel(source, "voronoi_jfa")
         _color_kernel = cp.RawKernel(source, "voronoi_color")
     return _jfa_kernel, _color_kernel
