@@ -1,3 +1,26 @@
+/*
+ *  Lorenz attractor — parallel trajectory integration.
+ *
+ *  The Lorenz system is a classic example of deterministic chaos:
+ *      dx/dt = sigma * (y - x)
+ *      dy/dt = x * (rho - z) - y
+ *      dz/dt = x * y - beta * z
+ *
+ *  Classic parameters: sigma=10, rho=28, beta=8/3.
+ *  Each thread integrates one trajectory using 4th-order Runge-Kutta (RK4),
+ *  starting from slightly different initial conditions to demonstrate
+ *  sensitive dependence (the "butterfly effect").
+ *
+ *  Parameters:
+ *      out_x, out_y, out_z — trajectory arrays
+ *              (num_trajectories x (num_steps+1), float32)
+ *      num_trajectories — number of parallel trajectories
+ *      num_steps        — integration steps per trajectory
+ *      dt               — time step (e.g. 0.01)
+ *      sigma, rho, beta — Lorenz system parameters
+ *
+ *  Launch: block=(256,), grid=((num_trajectories+255)/256,)
+ */
 extern "C" __global__
 void lorenz(float* out_x, float* out_y, float* out_z,
             int num_trajectories, int num_steps, float dt,

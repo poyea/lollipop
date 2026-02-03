@@ -1,3 +1,27 @@
+/*
+ *  Voronoi diagram via Jump Flooding Algorithm (JFA).
+ *
+ *  Two kernels:
+ *
+ *  voronoi_jfa — assigns each pixel to its nearest seed.
+ *    Run multiple passes with step = max_dim/2, max_dim/4, ..., 1.
+ *    Each pass, every pixel checks 9 neighbors at the current step
+ *    distance and adopts the closest seed.  Converges in O(log n) passes.
+ *
+ *  voronoi_color — maps the nearest-seed index to an RGB color.
+ *
+ *  The nearest[] array stores flat pixel indices (y*width + x) of the
+ *  assigned seed, or -1 if unassigned.
+ *
+ *  Parameters (jfa):
+ *      nearest   — (width*height) int32, seed assignments
+ *      seeds     — unused (kept for API compat)
+ *      num_seeds — number of seed points
+ *      width, height — grid size
+ *      step      — current JFA step size
+ *
+ *  Launch: block=(16,16), grid=((w+15)/16, (h+15)/16)
+ */
 extern "C" __global__
 void voronoi_jfa(int* nearest, const int* seeds, int num_seeds,
                  int width, int height, int step) {

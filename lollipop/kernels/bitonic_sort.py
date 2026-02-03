@@ -15,11 +15,6 @@ def _get_kernel() -> cp.RawKernel:
 
 
 def bitonic_sort(data: cp.ndarray) -> cp.ndarray:
-    """Sort a float32 array on GPU using a parallel bitonic sorting network.
-
-    Input must be a 1D float32 array with length that is a power of 2 (max 1024).
-    Returns a new sorted array.
-    """
     n = data.size
     if n & (n - 1) != 0:
         raise ValueError(f"Length must be a power of 2, got {n}")

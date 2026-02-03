@@ -20,10 +20,6 @@ def mandelbrot(
     height: int = 2048,
     max_iter: int = 500,
 ) -> cp.ndarray:
-    """Compute the Mandelbrot set on GPU.
-
-    Returns a (height, width) uint8 array of iteration counts scaled to 0-255.
-    """
     output = cp.zeros(width * height, dtype=cp.uint8)
     grid = (
         (width + _BLOCK_SIZE[0] - 1) // _BLOCK_SIZE[0],

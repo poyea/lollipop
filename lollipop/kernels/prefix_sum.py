@@ -15,11 +15,6 @@ def _get_kernel() -> cp.RawKernel:
 
 
 def prefix_sum(data: cp.ndarray) -> cp.ndarray:
-    """Compute exclusive prefix sum (scan) on GPU using Blelloch algorithm.
-
-    Input must be a 1D float32 array with length that is a power of 2.
-    Returns a new array with the exclusive prefix sum.
-    """
     n = data.size
     if n & (n - 1) != 0:
         raise ValueError(f"Length must be a power of 2, got {n}")

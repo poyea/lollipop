@@ -1,3 +1,24 @@
+/*
+ *  Monte Carlo Baccarat simulation — full 8-deck shoe.
+ *
+ *  Each thread simulates one complete shoe (416 cards).  Cards are
+ *  tracked by value counts (not a shuffled array) and drawn via
+ *  weighted random selection, equivalent to Fisher-Yates but without
+ *  materialising the deck.
+ *
+ *  Hands are dealt following standard Baccarat third-card rules until
+ *  the cut card is reached (~52 cards remaining).  Results per shoe
+ *  are accumulated locally, then added to global counters via atomicAdd.
+ *
+ *  Card values: 0 = {10,J,Q,K} (128 cards), 1-9 = face value (32 each).
+ *
+ *  Parameters:
+ *      results   — uint32[4]: [player_wins, banker_wins, ties, total_hands]
+ *      num_shoes — number of shoes to simulate (one per thread)
+ *      seed      — RNG seed
+ *
+ *  Launch: block=(256,), grid=((num_shoes+255)/256,)
+ */
 __device__ __forceinline__
 static int draw_card(unsigned char* count, int& cards_left, unsigned int& rng) {
     rng ^= rng << 13; rng ^= rng >> 17; rng ^= rng << 5;

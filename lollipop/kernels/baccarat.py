@@ -17,14 +17,6 @@ def _get_kernel() -> cp.RawKernel:
 
 
 def baccarat(num_shoes: int = 1_000_000, seed: int = 42) -> tuple[int, int, int, int]:
-    """Run a Monte Carlo Baccarat simulation on the GPU.
-
-    Each CUDA thread shuffles an 8-deck shoe (416 cards) via Fisher-Yates and
-    deals hands until the cut card (~1 deck / 52 cards from the end).  Results
-    are accumulated via atomic operations.
-
-    Returns (player_wins, banker_wins, ties, total_hands) as Python ints.
-    """
     results = cp.zeros(4, dtype=cp.uint32)
     grid = (num_shoes + _BLOCK_SIZE - 1) // _BLOCK_SIZE
 

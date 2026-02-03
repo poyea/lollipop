@@ -16,10 +16,6 @@ def _get_kernel() -> cp.RawKernel:
 
 
 def histogram(data: cp.ndarray, num_bins: int = 256) -> cp.ndarray:
-    """Compute a histogram of uint8 data on GPU using atomic operations.
-
-    Returns an array of shape (num_bins,) with counts as uint32.
-    """
     n = data.size
     bins = cp.zeros(num_bins, dtype=cp.uint32)
     grid = (n + _BLOCK_SIZE - 1) // _BLOCK_SIZE

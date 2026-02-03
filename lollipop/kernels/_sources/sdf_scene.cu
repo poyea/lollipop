@@ -1,3 +1,24 @@
+/*
+ *  Ray-marched SDF (Signed Distance Function) scene.
+ *
+ *  Each thread casts one ray from a camera through a pixel and marches
+ *  it through the scene using sphere tracing:
+ *      repeat: t += SDF(ray_origin + t * ray_dir)
+ *
+ *  The scene contains three primitives:
+ *    - Sphere  (radius 1.0 at origin)
+ *    - Box     (0.8 half-size at x=2)
+ *    - Torus   (R=1.5, r=0.4 at y=1.5)
+ *
+ *  The scene SDF is the minimum of all primitive SDFs (union).
+ *  Shading is distance-based: closer surfaces appear brighter.
+ *
+ *  Parameters:
+ *      output — (width * height) uint8 grayscale image
+ *      width, height — image dimensions
+ *
+ *  Launch: block=(16,16), grid=((w+15)/16, (h+15)/16)
+ */
 extern "C" __global__
 void sdf_scene(unsigned char* output, int width, int height) {
     int x = blockIdx.x * blockDim.x + threadIdx.x;

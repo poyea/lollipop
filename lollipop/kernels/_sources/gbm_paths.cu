@@ -1,3 +1,27 @@
+/*
+ *  Geometric Brownian Motion (GBM) path generation.
+ *
+ *  Each thread simulates one independent price path using the exact
+ *  log-normal discretisation:
+ *      S(t+dt) = S(t) * exp((mu - sigma^2/2)*dt + sigma*sqrt(dt)*Z)
+ *  where Z ~ N(0,1) is generated via Box-Muller transform.
+ *
+ *  The xorshift32 PRNG provides fast per-thread random state.
+ *  Box-Muller converts two uniform samples into a normal sample:
+ *      Z = sqrt(-2*ln(u1)) * cos(2*pi*u2)
+ *
+ *  Parameters:
+ *      paths     — output array (num_paths x (num_steps+1), float32)
+ *      S0        — initial asset price
+ *      mu        — drift (expected annual return)
+ *      sigma     — volatility (annual)
+ *      dt        — time step (T / num_steps)
+ *      num_steps — number of time steps per path
+ *      num_paths — number of independent paths
+ *      seed      — RNG seed
+ *
+ *  Launch: block=(256,), grid=((num_paths+255)/256,)
+ */
 extern "C" __global__
 void gbm_paths(float* paths, float S0, float mu, float sigma,
                float dt, int num_steps, int num_paths, unsigned int seed) {

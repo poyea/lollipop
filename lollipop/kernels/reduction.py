@@ -16,11 +16,6 @@ def _get_kernel() -> cp.RawKernel:
 
 
 def reduction(data: cp.ndarray) -> float:
-    """Compute the sum of a float32 array on GPU using parallel reduction.
-
-    Uses tree-based shared memory reduction with warp shuffle intrinsics
-    for the final warp. Returns a scalar float.
-    """
     data = data.astype(cp.float32).ravel()
     n = data.size
 

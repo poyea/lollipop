@@ -24,20 +24,6 @@ def lorenz(
     rho: float = 28.0,
     beta: float = 8.0 / 3.0,
 ) -> tuple[cp.ndarray, cp.ndarray, cp.ndarray]:
-    """Integrate the Lorenz system for many trajectories in parallel on GPU.
-
-    Each CUDA thread integrates one trajectory using fourth-order Runge-Kutta
-    with a slightly different initial condition, demonstrating sensitive
-    dependence on initial conditions (chaos).
-
-    The Lorenz equations:
-        dx/dt = sigma * (y - x)
-        dy/dt = x * (rho - z) - y
-        dz/dt = x * y - beta * z
-
-    Returns (x, y, z) arrays of shape (num_trajectories, num_steps + 1)
-    as float32.
-    """
     stride = num_steps + 1
     out_x = cp.empty((num_trajectories, stride), dtype=cp.float32)
     out_y = cp.empty((num_trajectories, stride), dtype=cp.float32)

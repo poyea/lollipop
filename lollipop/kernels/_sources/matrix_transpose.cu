@@ -1,3 +1,25 @@
+/*
+ *  Matrix transpose with shared-memory tiling.
+ *
+ *  Naive transpose suffers from uncoalesced global memory writes.
+ *  This kernel fixes that by:
+ *
+ *    1. Coalesced read:  load a 32x32 tile from input into shared memory
+ *    2. Coalesced write: write the transposed tile to output
+ *
+ *  The shared tile is declared as [32][33] — the +1 padding avoids
+ *  bank conflicts when threads read down a column.
+ *
+ *  Each thread handles 4 rows (TILE_DIM / BLOCK_ROWS = 32/8 = 4).
+ *
+ *  Parameters:
+ *      input  — source matrix (height x width, float32, row-major)
+ *      output — transposed matrix (width x height, float32)
+ *      width  — number of columns in input
+ *      height — number of rows in input
+ *
+ *  Launch: block=(32,8), grid=((w+31)/32, (h+31)/32)
+ */
 #define TILE_DIM 32
 #define BLOCK_ROWS 8
 

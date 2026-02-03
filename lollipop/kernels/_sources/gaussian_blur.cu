@@ -1,3 +1,24 @@
+/*
+ *  Gaussian blur — 2D image convolution.
+ *
+ *  Each thread computes one output pixel as a weighted average of its
+ *  neighbors within a square window of size (2*radius+1).  Weights
+ *  follow a Gaussian distribution:
+ *      w(dx,dy) = exp(-(dx^2 + dy^2) / (2 * sigma^2))
+ *  with sigma = radius / 2.
+ *
+ *  Boundary handling: clamp (edge pixels are repeated).
+ *  The weights are normalised per pixel so the output stays in the
+ *  same value range as the input.
+ *
+ *  Parameters:
+ *      input  — source image  (height x width, float32)
+ *      output — blurred image (height x width, float32)
+ *      width, height — image dimensions
+ *      radius — blur radius in pixels
+ *
+ *  Launch: block=(16,16), grid=((w+15)/16, (h+15)/16)
+ */
 extern "C" __global__
 void gaussian_blur(const float* input, float* output,
                    int width, int height, int radius) {

@@ -22,10 +22,6 @@ def julia(
     c_re: float = -0.7,
     c_im: float = 0.27015,
 ) -> cp.ndarray:
-    """Compute a Julia set on GPU.
-
-    Returns a (height, width) uint8 array of iteration counts scaled to 0-255.
-    """
     output = cp.zeros(width * height, dtype=cp.uint8)
     grid = (
         (width + _BLOCK_SIZE[0] - 1) // _BLOCK_SIZE[0],

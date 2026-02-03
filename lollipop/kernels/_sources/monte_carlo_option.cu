@@ -1,3 +1,27 @@
+/*
+ *  Monte Carlo European option pricing.
+ *
+ *  Each thread simulates multiple GBM terminal stock prices and
+ *  accumulates discounted payoffs:
+ *      S_T = S0 * exp((r - sigma^2/2)*T + sigma*sqrt(T)*Z)
+ *      call payoff = max(S_T - K, 0)
+ *      put  payoff = max(K - S_T, 0)
+ *
+ *  Thread-local payoff sums are added to global accumulators via
+ *  atomicAdd.  The caller divides by total paths and discounts by
+ *  e^(-rT) to get the option price.
+ *
+ *  Uses xorshift32 RNG + Box-Muller transform for normal samples.
+ *
+ *  Parameters:
+ *      results          — float32[2]: [call_payoff_sum, put_payoff_sum]
+ *      S0, K, r, sigma, T — option contract parameters
+ *      paths_per_thread — how many paths each thread simulates
+ *      num_threads      — total number of threads
+ *      seed             — RNG seed
+ *
+ *  Launch: block=(256,), grid=((num_threads+255)/256,)
+ */
 extern "C" __global__
 void monte_carlo_option(float* results, float S0, float K, float r,
                         float sigma, float T, int paths_per_thread,

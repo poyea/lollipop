@@ -22,22 +22,6 @@ def black_scholes(
     rate: cp.ndarray,
     vol: cp.ndarray,
 ) -> tuple[cp.ndarray, cp.ndarray]:
-    """Price European options using the Black-Scholes analytical formula.
-
-    Each element across the input arrays defines one option contract.
-    Computes call and put prices in parallel on the GPU using the closed-form
-    solution with the cumulative normal distribution.
-
-    Parameters
-    ----------
-    spot   : cp.ndarray (float32) – Current underlying prices.
-    strike : cp.ndarray (float32) – Strike prices.
-    ttm    : cp.ndarray (float32) – Time to maturity in years.
-    rate   : cp.ndarray (float32) – Risk-free interest rates.
-    vol    : cp.ndarray (float32) – Implied volatilities.
-
-    Returns (call_prices, put_prices) as float32 GPU arrays.
-    """
     n = spot.shape[0]
     call_prices = cp.empty(n, dtype=cp.float32)
     put_prices = cp.empty(n, dtype=cp.float32)

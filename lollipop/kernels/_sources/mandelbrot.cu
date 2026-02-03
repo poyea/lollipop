@@ -1,3 +1,18 @@
+/*
+ *  Mandelbrot set fractal.
+ *
+ *  Each thread maps one pixel to the complex plane and iterates
+ *      z(n+1) = z(n)^2 + c
+ *  starting from z(0) = 0,  where c = pixel coordinate.
+ *  The iteration count (scaled to 0-255) becomes the pixel brightness.
+ *
+ *  Parameters:
+ *      output   — (width * height) uint8 image
+ *      width, height — image dimensions
+ *      max_iter — escape-time iteration limit
+ *
+ *  Launch: block=(16,16), grid=((w+15)/16, (h+15)/16)
+ */
 extern "C" __global__
 void mandelbrot(unsigned char* output, int width, int height, int max_iter) {
     int x = blockIdx.x * blockDim.x + threadIdx.x;

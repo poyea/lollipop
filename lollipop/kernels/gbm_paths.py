@@ -25,24 +25,6 @@ def gbm_paths(
     num_steps: int = 252,
     seed: int = 42,
 ) -> cp.ndarray:
-    """Simulate Geometric Brownian Motion paths on GPU.
-
-    Each CUDA thread generates one independent price path using the exact
-    GBM discretisation:
-        S(t+dt) = S(t) * exp((mu - sigma^2/2)*dt + sigma*sqrt(dt)*Z)
-
-    Parameters
-    ----------
-    s0        : float – Initial asset price.
-    mu        : float – Drift (expected annual return).
-    sigma     : float – Volatility (annual).
-    t         : float – Time horizon in years.
-    num_paths : int   – Number of independent paths to simulate.
-    num_steps : int   – Number of time steps per path (e.g. 252 trading days).
-    seed      : int   – RNG seed.
-
-    Returns an array of shape (num_paths, num_steps + 1) as float32.
-    """
     dt = t / num_steps
     paths = cp.empty((num_paths, num_steps + 1), dtype=cp.float32)
 

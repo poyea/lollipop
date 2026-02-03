@@ -25,10 +25,6 @@ def reaction_diffusion(
     k: float = 0.065,
     dt: float = 1.0,
 ) -> tuple[cp.ndarray, cp.ndarray]:
-    """Run Gray-Scott reaction-diffusion simulation on GPU.
-
-    Returns (u, v) arrays of shape (height, width) as float32.
-    """
     u = cp.ones((height, width), dtype=cp.float32)
     v = cp.zeros((height, width), dtype=cp.float32)
 

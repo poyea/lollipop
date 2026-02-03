@@ -1,3 +1,21 @@
+/*
+ *  Julia set fractal.
+ *
+ *  Like Mandelbrot, but the constant c is fixed across all pixels and
+ *  each pixel provides the initial z(0):
+ *      z(n+1) = z(n)^2 + c
+ *
+ *  Different (c_re, c_im) values produce wildly different patterns.
+ *  Classic choice: c = -0.7 + 0.27015i
+ *
+ *  Parameters:
+ *      output       — (width * height) uint8 image
+ *      width, height — image dimensions
+ *      max_iter     — escape-time iteration limit
+ *      c_re, c_im   — real and imaginary parts of the Julia constant
+ *
+ *  Launch: block=(16,16), grid=((w+15)/16, (h+15)/16)
+ */
 extern "C" __global__
 void julia(unsigned char* output, int width, int height, int max_iter,
            float c_re, float c_im) {

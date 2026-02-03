@@ -1,3 +1,22 @@
+/*
+ *  Parallel sum reduction with warp shuffle.
+ *
+ *  Three-stage reduction:
+ *    1. Each thread loads two elements and adds them (halves the work)
+ *    2. Tree reduction in shared memory down to 32 threads
+ *    3. Final warp uses __shfl_down_sync — no shared memory or
+ *       __syncthreads needed within a warp (lockstep execution)
+ *
+ *  The final result is added to output[0] via atomicAdd, so multiple
+ *  blocks can cooperate on large arrays.
+ *
+ *  Parameters:
+ *      input  — n float32 values to sum
+ *      output — single float32 accumulator (caller zeroes it)
+ *      n      — number of input elements
+ *
+ *  Launch: block=(256,), grid=((n+511)/512,), shared_mem = 256 * sizeof(float)
+ */
 extern "C" __global__
 void reduction(const float* input, float* output, int n) {
     extern __shared__ float sdata[];

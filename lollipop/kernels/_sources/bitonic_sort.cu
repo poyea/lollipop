@@ -1,3 +1,24 @@
+/*
+ *  Bitonic sort — data-parallel sorting network.
+ *
+ *  Works entirely in shared memory within a single thread block.
+ *  The algorithm builds increasingly larger bitonic sequences and
+ *  merges them:
+ *
+ *    for each k = 2, 4, 8, ... n:        (bitonic sequence length)
+ *      for each j = k/2, k/4, ... 1:     (compare-and-swap distance)
+ *        each thread compares element[tid] with element[tid ^ j]
+ *        and swaps if they are out of order.
+ *
+ *  All threads sync between each compare-and-swap pass.
+ *  O(n log^2 n) comparisons, fully parallel.
+ *
+ *  Parameters:
+ *      data — n float32 values (sorted in-place, ascending)
+ *      n    — array length (must be power of 2, max 1024)
+ *
+ *  Launch: block=(n,), grid=(1,), shared_mem = n * sizeof(float)
+ */
 extern "C" __global__
 void bitonic_sort(float* data, int n) {
     extern __shared__ float shared[];

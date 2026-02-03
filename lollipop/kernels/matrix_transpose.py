@@ -17,11 +17,6 @@ def _get_kernel() -> cp.RawKernel:
 
 
 def matrix_transpose(matrix: cp.ndarray) -> cp.ndarray:
-    """Transpose a 2D float32 matrix on GPU using shared-memory tiling.
-
-    Uses bank-conflict-free shared memory tiles with coalesced global reads
-    and writes. Returns a new (cols, rows) array.
-    """
     if matrix.ndim != 2:
         raise ValueError(f"Expected 2D array, got {matrix.ndim}D")
 

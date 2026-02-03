@@ -21,10 +21,6 @@ def nbody(
     dt: float = 0.001,
     softening: float = 0.01,
 ) -> tuple[cp.ndarray, cp.ndarray, cp.ndarray]:
-    """Run an N-body gravitational simulation on GPU.
-
-    Returns (px, py, pz) position arrays of shape (n,) as float32.
-    """
     rng = cp.random.default_rng(42)
     px = rng.standard_normal(n, dtype=cp.float32)
     py = rng.standard_normal(n, dtype=cp.float32)

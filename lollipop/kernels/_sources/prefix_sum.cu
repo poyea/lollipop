@@ -1,3 +1,20 @@
+/*
+ *  Exclusive prefix sum (scan) — Blelloch algorithm.
+ *
+ *  Two-phase work-efficient scan that runs inside a single block:
+ *
+ *    1. Up-sweep (reduce):   build partial sums bottom-up in shared memory
+ *    2. Down-sweep:          propagate prefix sums top-down
+ *
+ *  Result: data[i] = sum of all elements before index i  (exclusive scan).
+ *  Example: [1,2,3,4] -> [0,1,3,6]
+ *
+ *  Parameters:
+ *      data — n float32 values (overwritten with exclusive prefix sums)
+ *      n    — array length (must be a power of 2)
+ *
+ *  Launch: block=(n/2,), grid=(1,), shared_mem = n * sizeof(float)
+ */
 extern "C" __global__
 void prefix_sum_blelloch(float* data, int n) {
     extern __shared__ float temp[];

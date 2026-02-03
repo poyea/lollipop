@@ -1,3 +1,27 @@
+/*
+ *  Black-Scholes European option pricing.
+ *
+ *  Closed-form solution for European call and put prices:
+ *      d1 = [ln(S/K) + (r + sigma^2/2)*T] / (sigma * sqrt(T))
+ *      d2 = d1 - sigma * sqrt(T)
+ *      call = S * N(d1) - K * e^(-rT) * N(d2)
+ *      put  = K * e^(-rT) * N(-d2) - S * N(-d1)
+ *
+ *  Uses CUDA's built-in normcdff() for the cumulative normal distribution.
+ *  Each thread prices one option contract independently.
+ *
+ *  Parameters:
+ *      spot       — current underlying prices  (n float32)
+ *      strike     — strike prices               (n float32)
+ *      ttm        — time to maturity in years   (n float32)
+ *      rate       — risk-free interest rates     (n float32)
+ *      vol        — implied volatilities         (n float32)
+ *      call_price — output call prices           (n float32)
+ *      put_price  — output put prices            (n float32)
+ *      n          — number of option contracts
+ *
+ *  Launch: block=(256,), grid=((n+255)/256,)
+ */
 extern "C" __global__
 void black_scholes(const float* spot, const float* strike, const float* ttm,
                    const float* rate, const float* vol,

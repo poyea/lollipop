@@ -25,23 +25,6 @@ def monte_carlo_option(
     num_paths: int = 1_000_000,
     seed: int = 42,
 ) -> tuple[float, float]:
-    """Price European options via Monte Carlo simulation on GPU.
-
-    Each CUDA thread simulates multiple GBM terminal values and accumulates
-    discounted payoffs via atomic operations.
-
-    Parameters
-    ----------
-    s0        : float – Initial asset price.
-    k         : float – Strike price.
-    r         : float – Risk-free interest rate.
-    sigma     : float – Volatility (annual).
-    t         : float – Time to maturity in years.
-    num_paths : int   – Total number of simulated paths.
-    seed      : int   – RNG seed.
-
-    Returns (call_price, put_price) as Python floats.
-    """
     num_threads = min(num_paths, 65536)
     paths_per_thread = num_paths // num_threads
 
