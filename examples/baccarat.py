@@ -13,11 +13,11 @@ def main():
     cp.zeros(1)
     cp.cuda.Stream.null.synchronize()
 
-    num_hands = 10_000_000
+    num_shoes = 1_000_000
 
     cp.cuda.Stream.null.synchronize()
     start = time.perf_counter()
-    player_wins, banker_wins, ties = baccarat(num_hands)
+    player_wins, banker_wins, ties, total_hands = baccarat(num_shoes)
     cp.cuda.Stream.null.synchronize()
     gpu_time = time.perf_counter() - start
 
@@ -26,7 +26,10 @@ def main():
     b_pct = banker_wins / total * 100
     t_pct = ties / total * 100
 
-    print(f"  Simulated {num_hands:,} hands in {gpu_time:.4f}s\n")
+    print(f"  Simulated {num_shoes:,} shoes ({total_hands:,} hands) in {gpu_time:.4f}s")
+    print(
+        f"  8-deck shoe, ~1 deck cut penetration (~{total_hands / num_shoes:.1f} hands/shoe)\n"
+    )
     print(f"  {'Outcome':<12} {'Simulated':>10} {'Theoretical':>12} {'Diff':>8}")
     print(f"  {'-'*44}")
     print(f"  {'Player':<12} {p_pct:>9.2f}% {44.62:>11.2f}% {p_pct - 44.62:>+7.2f}%")
