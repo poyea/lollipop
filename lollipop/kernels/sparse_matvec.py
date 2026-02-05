@@ -27,8 +27,15 @@ def sparse_matvec(
     grid = (num_rows + _BLOCK_SIZE - 1) // _BLOCK_SIZE
 
     _get_kernel()(
-        (grid,), (_BLOCK_SIZE,),
-        (row_ptr.astype(cp.int32), col_idx.astype(cp.int32),
-         values.astype(cp.float32), x.astype(cp.float32), y, num_rows),
+        (grid,),
+        (_BLOCK_SIZE,),
+        (
+            row_ptr.astype(cp.int32),
+            col_idx.astype(cp.int32),
+            values.astype(cp.float32),
+            x.astype(cp.float32),
+            y,
+            num_rows,
+        ),
     )
     return y

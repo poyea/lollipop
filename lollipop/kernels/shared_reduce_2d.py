@@ -29,5 +29,7 @@ def shared_reduce_2d(data: cp.ndarray) -> float:
     )
     shared_mem = _BLOCK_SIZE[0] * _BLOCK_SIZE[1] * 4
 
-    _get_kernel()(grid, _BLOCK_SIZE, (data, output, width, height), shared_mem=shared_mem)
+    _get_kernel()(
+        grid, _BLOCK_SIZE, (data, output, width, height), shared_mem=shared_mem
+    )
     return float(output[0])

@@ -63,18 +63,21 @@ def main():
         histograms[:] = 0
 
         hist_kernel(
-            (num_blocks,), (_BLOCK_SIZE,),
+            (num_blocks,),
+            (_BLOCK_SIZE,),
             (keys_in, histograms, np.int32(n_padded), np.int32(shift)),
         )
 
         scan_kernel(
-            (1,), (scan_threads,),
+            (1,),
+            (scan_threads,),
             (histograms, np.int32(scan_total)),
             shared_mem=scan_total * 4,
         )
 
         scatter_kernel(
-            (num_blocks,), (_BLOCK_SIZE,),
+            (num_blocks,),
+            (_BLOCK_SIZE,),
             (keys_in, keys_out, histograms, np.int32(n_padded), np.int32(shift)),
         )
 

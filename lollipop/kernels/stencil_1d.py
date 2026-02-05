@@ -25,7 +25,8 @@ def stencil_1d(data: cp.ndarray, radius: int = 3) -> cp.ndarray:
     shared_mem = (_BLOCK_SIZE + 2 * radius) * 4
 
     _get_kernel()(
-        (grid,), (_BLOCK_SIZE,),
+        (grid,),
+        (_BLOCK_SIZE,),
         (data, output, np.int32(n), np.int32(radius)),
         shared_mem=shared_mem,
     )
