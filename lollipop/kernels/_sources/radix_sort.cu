@@ -121,30 +121,77 @@ void radix_prefix_sum(unsigned int* histograms, int total) {
     if (2 * tid + 1 < total) histograms[2 * tid + 1] = temp[2 * tid + 1];
 }
 
-/* ---- Phase 3: scatter keys to sorted positions ------------------- */
+/* ---- Phase 3: stable scatter keys to sorted positions ------------ */
+/*
+ *  Stability requirement: among keys with the same current digit, the one
+ *  at a lower input index must go to a lower output index.  A bare
+ *  atomicAdd on shared memory fails this because warp scheduling is
+ *  non-deterministic, so threads race for slots in arbitrary order.
+ *
+ *  Fix: use __ballot_sync / __popc to assign positions in lane order
+ *  (deterministic, low-lane → low position) within each warp, then
+ *  combine across warps with a sequential prefix sum over warp counts.
+ *
+ *  Stable ordering guaranteed at three levels:
+ *    1. across blocks  — from the pre-scanned histogram (block 0 < block 1 ...)
+ *    2. across warps   — warp_prefix exclusive scan (warp 0 < warp 1 ...)
+ *    3. within a warp  — __popc of lower-lane mask (lane 0 < lane 1 ...)
+ */
+
+#define NUM_WARPS (256 / 32)   /* must match BLOCK_SIZE in the Python wrapper */
 
 extern "C" __global__
 void radix_scatter(const unsigned int* keys_in,
                    unsigned int* keys_out,
                    const unsigned int* histograms,
                    int n, int shift) {
-    __shared__ unsigned int local_offset[NUM_BUCKETS];
+    __shared__ unsigned int block_offset[NUM_BUCKETS];
+    __shared__ unsigned int warp_prefix[NUM_WARPS][NUM_BUCKETS];
 
-    int tid = threadIdx.x;
-    int gid = blockIdx.x * blockDim.x + tid;
+    int tid       = threadIdx.x;
+    int gid       = blockIdx.x * blockDim.x + tid;
     int num_blocks = gridDim.x;
+    int warp_id   = tid >> 5;
+    int lane      = tid & 31;
 
-    /* Load this block's starting offsets from the scanned histogram */
-    if (tid < NUM_BUCKETS) {
-        local_offset[tid] = histograms[tid * num_blocks + blockIdx.x];
+    /* Load this block's global starting offset for each bucket */
+    if (tid < NUM_BUCKETS)
+        block_offset[tid] = histograms[tid * num_blocks + blockIdx.x];
+
+    /* Out-of-bounds threads use a sentinel bucket that is never written */
+    int valid           = (gid < n);
+    unsigned int key    = valid ? keys_in[gid] : 0u;
+    unsigned int bucket = valid ? ((key >> shift) & (NUM_BUCKETS - 1))
+                                : NUM_BUCKETS;   /* sentinel */
+
+    /* For each bucket, ballot which lanes belong to it.
+       popc of the mask for lanes below mine gives my intra-warp rank. */
+    unsigned int intra_rank = 0;
+    for (int b = 0; b < NUM_BUCKETS; b++) {
+        unsigned int mask = __ballot_sync(0xFFFFFFFFu, bucket == (unsigned int)b);
+        if (bucket == (unsigned int)b)
+            intra_rank = __popc(mask & ((1u << lane) - 1u));
+        if (lane == 0)
+            warp_prefix[warp_id][b] = __popc(mask);
     }
     __syncthreads();
 
-    /* Scatter each key to its global position */
-    if (gid < n) {
-        unsigned int key = keys_in[gid];
-        unsigned int bucket = (key >> shift) & (NUM_BUCKETS - 1);
-        unsigned int pos = atomicAdd(&local_offset[bucket], 1);
+    /* Convert per-warp counts to exclusive prefix sums across warps.
+       Only NUM_BUCKETS threads needed; they all fit in a single warp. */
+    if (tid < NUM_BUCKETS) {
+        unsigned int sum = 0;
+        for (int w = 0; w < NUM_WARPS; w++) {
+            unsigned int cnt      = warp_prefix[w][tid];
+            warp_prefix[w][tid]   = sum;
+            sum                  += cnt;
+        }
+    }
+    __syncthreads();
+
+    if (valid) {
+        unsigned int pos = block_offset[bucket]
+                         + warp_prefix[warp_id][bucket]
+                         + intra_rank;
         keys_out[pos] = key;
     }
 }
