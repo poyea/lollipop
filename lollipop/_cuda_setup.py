@@ -2,7 +2,7 @@ import os
 import sys
 
 
-def _fix_cuda_path():
+def _fix_cuda_path() -> None:
     """Add nvidia pip package DLL directories to PATH so CuPy can find them."""
     site_packages = os.path.join(sys.prefix, "Lib", "site-packages")
     nvidia_base = os.path.join(site_packages, "nvidia")

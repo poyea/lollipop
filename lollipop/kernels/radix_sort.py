@@ -12,7 +12,7 @@ _BITS_PER_PASS = 4
 _NUM_BUCKETS = 1 << _BITS_PER_PASS
 
 
-def _get_kernels() -> tuple:
+def _get_kernels() -> tuple[cp.RawKernel, cp.RawKernel, cp.RawKernel]:
     global _hist_kernel, _scan_kernel, _scatter_kernel
     if _hist_kernel is None:
         source = (_SOURCES_DIR / "radix_sort.cu").read_text(encoding="utf-8")
