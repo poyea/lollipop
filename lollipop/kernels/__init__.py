@@ -16,6 +16,7 @@ from lollipop.kernels.radix_sort import radix_sort
 from lollipop.kernels.reaction_diffusion import reaction_diffusion
 from lollipop.kernels.reduction import reduction
 from lollipop.kernels.shared_reduce_2d import shared_reduce_2d
+from lollipop.kernels.softmax import softmax
 from lollipop.kernels.sparse_matvec import sparse_matvec
 from lollipop.kernels.stencil_1d import stencil_1d
 from lollipop.kernels.voronoi import voronoi
@@ -41,6 +42,7 @@ __all__ = [
     "reaction_diffusion",
     "reduction",
     "shared_reduce_2d",
+    "softmax",
     "sparse_matvec",
     "stencil_1d",
     "voronoi",
