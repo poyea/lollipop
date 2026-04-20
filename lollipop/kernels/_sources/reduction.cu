@@ -31,8 +31,8 @@ void reduction(const float* input, float* output, int n) {
     sdata[tid] = val;
     __syncthreads();
 
-    /* Shared memory tree reduction */
-    for (int s = blockDim.x / 2; s > 32; s >>= 1) {
+    /* Shared memory tree reduction down to one warp (32 elements). */
+    for (int s = blockDim.x / 2; s >= 32; s >>= 1) {
         if (tid < s) {
             sdata[tid] += sdata[tid + s];
         }
