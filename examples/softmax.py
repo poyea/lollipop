@@ -3,6 +3,20 @@ import cupy as cp
 import time
 
 from lollipop import softmax
+from lollipop.kernels.softmax_vec4 import softmax_vec4
+
+
+def _bench(fn, data, iters=5):
+    # One warmup, then best-of-iters.
+    fn(data)
+    cp.cuda.Stream.null.synchronize()
+    best = float("inf")
+    for _ in range(iters):
+        start = time.perf_counter()
+        result = fn(data)
+        cp.cuda.Stream.null.synchronize()
+        best = min(best, time.perf_counter() - start)
+    return result, best
 
 
 def main():
@@ -17,41 +31,36 @@ def main():
     rng = cp.random.default_rng(0)
     x = rng.standard_normal((rows, cols), dtype=cp.float32) * 5.0
 
-    # Warmup.
-    softmax(x)
-    cp.exp(x - x.max(axis=1, keepdims=True))
-    cp.cuda.Stream.null.synchronize()
+    def _cupy_ref(x):
+        shifted = x - x.max(axis=1, keepdims=True)
+        e = cp.exp(shifted)
+        return e / e.sum(axis=1, keepdims=True)
 
-    start = time.perf_counter()
-    y = softmax(x)
-    cp.cuda.Stream.null.synchronize()
-    fused = time.perf_counter() - start
-
-    start = time.perf_counter()
-    shifted = x - x.max(axis=1, keepdims=True)
-    e = cp.exp(shifted)
-    y_ref = e / e.sum(axis=1, keepdims=True)
-    cp.cuda.Stream.null.synchronize()
-    cupy_time = time.perf_counter() - start
-
-    max_err = float(cp.abs(y - y_ref).max())
-    row_sums = y.sum(axis=1)
-    sum_err = float(cp.abs(row_sums - 1.0).max())
+    y_ref, t_ref = _bench(_cupy_ref, x)
+    y1, t1 = _bench(softmax, x)
+    y2, t2 = _bench(softmax_vec4, x)
 
     bytes_moved = 2 * rows * cols * 4  # one read, one write
-    bandwidth = bytes_moved / fused / 1e9
+    err1 = float(cp.abs(y1 - y_ref).max())
+    err2 = float(cp.abs(y2 - y_ref).max())
 
     print(f"  Shape: ({rows:,}, {cols:,})  ({rows * cols * 4 / 1e6:.1f} MB)")
-    print(f"  Fused softmax: {fused * 1e3:.2f} ms   ({bandwidth:.1f} GB/s effective)")
-    print(f"  CuPy (3-kernel) ref: {cupy_time * 1e3:.2f} ms")
-    print(f"  Speedup vs CuPy: {cupy_time / fused:.2f}x")
-    print(f"  Max |y - y_ref|: {max_err:.2e}")
-    print(f"  Max |row_sum - 1|: {sum_err:.2e}")
+    print(
+        f"  scalar          : {t1 * 1e3:7.2f} ms   "
+        f"({bytes_moved / t1 / 1e9:6.1f} GB/s)   max_err={err1:.2e}"
+    )
+    print(
+        f"  vec4 (float4)   : {t2 * 1e3:7.2f} ms   "
+        f"({bytes_moved / t2 / 1e9:6.1f} GB/s)   max_err={err2:.2e}"
+    )
+    print(f"  CuPy (3-kernel) : {t_ref * 1e3:7.2f} ms")
+    print(f"  vec4 vs scalar  : {t1 / t2:.2f}x")
+    print(f"  vec4 vs CuPy    : {t_ref / t2:.2f}x")
 
     print("\n  Small-input sanity check:")
     small = cp.array([[1.0, 2.0, 3.0, 4.0], [0.0, 0.0, 0.0, 0.0]], dtype=cp.float32)
-    print(f"    softmax([1,2,3,4]) = {softmax(small)[0]}")
-    print(f"    softmax([0,0,0,0]) = {softmax(small)[1]}")
+    print(f"    softmax_vec4([1,2,3,4]) = {softmax_vec4(small)[0]}")
+    print(f"    softmax_vec4([0,0,0,0]) = {softmax_vec4(small)[1]}")
 
 
 if __name__ == "__main__":

@@ -17,9 +17,12 @@ from lollipop.kernels import reaction_diffusion
 from lollipop.kernels import reduction
 from lollipop.kernels import reduction_vec4
 from lollipop.kernels import shared_reduce_2d
+from lollipop.kernels import shared_reduce_2d_vec4
 from lollipop.kernels import softmax
+from lollipop.kernels import softmax_vec4
 from lollipop.kernels import sparse_matvec
 from lollipop.kernels import stencil_1d
+from lollipop.kernels import stencil_1d_vec4
 from lollipop.kernels import voronoi
 from lollipop.kernels import warp_scan
 from lollipop.kernels import wave_equation
@@ -44,9 +47,12 @@ __all__ = [
     "reduction",
     "reduction_vec4",
     "shared_reduce_2d",
+    "shared_reduce_2d_vec4",
     "softmax",
+    "softmax_vec4",
     "sparse_matvec",
     "stencil_1d",
+    "stencil_1d_vec4",
     "voronoi",
     "warp_scan",
     "wave_equation",
