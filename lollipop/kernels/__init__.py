@@ -15,6 +15,7 @@ from lollipop.kernels.prefix_sum import prefix_sum
 from lollipop.kernels.radix_sort import radix_sort
 from lollipop.kernels.reaction_diffusion import reaction_diffusion
 from lollipop.kernels.reduction import reduction
+from lollipop.kernels.reduction_vec4 import reduction_vec4
 from lollipop.kernels.shared_reduce_2d import shared_reduce_2d
 from lollipop.kernels.softmax import softmax
 from lollipop.kernels.sparse_matvec import sparse_matvec
@@ -41,6 +42,7 @@ __all__ = [
     "radix_sort",
     "reaction_diffusion",
     "reduction",
+    "reduction_vec4",
     "shared_reduce_2d",
     "softmax",
     "sparse_matvec",
