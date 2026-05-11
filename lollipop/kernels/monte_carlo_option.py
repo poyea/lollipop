@@ -1,19 +1,9 @@
-from pathlib import Path
-
 import cupy as cp
 import numpy as np
 
-_SOURCES_DIR = Path(__file__).parent / "_sources"
-_kernel = None
+from lollipop.kernels._raw import load
+
 _BLOCK_SIZE = 256
-
-
-def _get_kernel() -> cp.RawKernel:
-    global _kernel
-    if _kernel is None:
-        source = (_SOURCES_DIR / "monte_carlo_option.cu").read_text(encoding="utf-8")
-        _kernel = cp.RawKernel(source, "monte_carlo_option")
-    return _kernel
 
 
 def monte_carlo_option(
@@ -31,7 +21,7 @@ def monte_carlo_option(
     results = cp.zeros(2, dtype=cp.float32)
     grid = (num_threads + _BLOCK_SIZE - 1) // _BLOCK_SIZE
 
-    _get_kernel()(
+    load("monte_carlo_option")(
         (grid,),
         (_BLOCK_SIZE,),
         (

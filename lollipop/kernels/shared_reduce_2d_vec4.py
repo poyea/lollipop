@@ -1,18 +1,8 @@
-from pathlib import Path
-
 import cupy as cp
 
-_SOURCES_DIR = Path(__file__).parent / "_sources"
-_kernel = None
+from lollipop.kernels._raw import load
+
 _BLOCK_SIZE = (16, 16)
-
-
-def _get_kernel() -> cp.RawKernel:
-    global _kernel
-    if _kernel is None:
-        source = (_SOURCES_DIR / "shared_reduce_2d_vec4.cu").read_text(encoding="utf-8")
-        _kernel = cp.RawKernel(source, "shared_reduce_2d_vec4")
-    return _kernel
 
 
 def shared_reduce_2d_vec4(data: cp.ndarray) -> float:
@@ -41,13 +31,6 @@ def shared_reduce_2d_vec4(data: cp.ndarray) -> float:
     width_vec4 = width // 4
 
     if width_vec4 > 0 and height > 0:
-        # The kernel sees a (height x width_vec4) float4 view of the head
-        # columns.  Since the array is contiguous and width may not equal
-        # 4 * width_vec4, we pass the original pointer + the float4 stride
-        # along the row.  A contiguous (height, 4 * width_vec4) slice is
-        # equivalent to a (height, width_vec4) float4 array iff the row
-        # pitch equals 4 * width_vec4 floats, i.e. when width % 4 == 0.
-        # For the general case we hand the kernel the contiguous head slice.
         if width % 4 == 0:
             head = data
         else:
@@ -59,7 +42,7 @@ def shared_reduce_2d_vec4(data: cp.ndarray) -> float:
         )
         shared_mem = _BLOCK_SIZE[0] * _BLOCK_SIZE[1] * 4
 
-        _get_kernel()(
+        load("shared_reduce_2d_vec4")(
             grid,
             _BLOCK_SIZE,
             (head, output, width_vec4, height),

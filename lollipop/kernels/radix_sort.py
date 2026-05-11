@@ -1,25 +1,11 @@
-from pathlib import Path
-
 import cupy as cp
 import numpy as np
 
-_SOURCES_DIR = Path(__file__).parent / "_sources"
-_hist_kernel = None
-_scan_kernel = None
-_scatter_kernel = None
+from lollipop.kernels._raw import load
+
 _BLOCK_SIZE = 256
 _BITS_PER_PASS = 4
 _NUM_BUCKETS = 1 << _BITS_PER_PASS
-
-
-def _get_kernels() -> tuple[cp.RawKernel, cp.RawKernel, cp.RawKernel]:
-    global _hist_kernel, _scan_kernel, _scatter_kernel
-    if _hist_kernel is None:
-        source = (_SOURCES_DIR / "radix_sort.cu").read_text(encoding="utf-8")
-        _hist_kernel = cp.RawKernel(source, "radix_histogram")
-        _scan_kernel = cp.RawKernel(source, "radix_prefix_sum")
-        _scatter_kernel = cp.RawKernel(source, "radix_scatter")
-    return _hist_kernel, _scan_kernel, _scatter_kernel
 
 
 def _next_power_of_2(x: int) -> int:
@@ -43,7 +29,9 @@ def radix_sort(data: cp.ndarray) -> cp.ndarray:
     scan_threads = _next_power_of_2(total_hist) // 2
     scan_total = _next_power_of_2(total_hist)
 
-    hist_kernel, scan_kernel, scatter_kernel = _get_kernels()
+    hist_kernel = load("radix_sort", "radix_histogram")
+    scan_kernel = load("radix_sort", "radix_prefix_sum")
+    scatter_kernel = load("radix_sort", "radix_scatter")
 
     keys_in = data.copy()
     keys_out = cp.empty_like(keys_in)

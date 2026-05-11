@@ -1,18 +1,8 @@
-from pathlib import Path
-
 import cupy as cp
 
-_SOURCES_DIR = Path(__file__).parent / "_sources"
-_kernel = None
+from lollipop.kernels._raw import load
+
 _BLOCK_SIZE = 256
-
-
-def _get_kernel() -> cp.RawKernel:
-    global _kernel
-    if _kernel is None:
-        source = (_SOURCES_DIR / "sparse_matvec.cu").read_text(encoding="utf-8")
-        _kernel = cp.RawKernel(source, "sparse_matvec")
-    return _kernel
 
 
 def sparse_matvec(
@@ -26,7 +16,7 @@ def sparse_matvec(
 
     grid = (num_rows + _BLOCK_SIZE - 1) // _BLOCK_SIZE
 
-    _get_kernel()(
+    load("sparse_matvec")(
         (grid,),
         (_BLOCK_SIZE,),
         (

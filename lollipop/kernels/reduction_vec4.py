@@ -1,18 +1,8 @@
-from pathlib import Path
-
 import cupy as cp
 
-_SOURCES_DIR = Path(__file__).parent / "_sources"
-_kernel = None
+from lollipop.kernels._raw import load
+
 _BLOCK_SIZE = 256
-
-
-def _get_kernel() -> cp.RawKernel:
-    global _kernel
-    if _kernel is None:
-        source = (_SOURCES_DIR / "reduction_vec4.cu").read_text(encoding="utf-8")
-        _kernel = cp.RawKernel(source, "reduction_vec4")
-    return _kernel
 
 
 def reduction_vec4(data: cp.ndarray) -> float:
@@ -39,8 +29,7 @@ def reduction_vec4(data: cp.ndarray) -> float:
     if n_vec4 > 0:
         grid = (n_vec4 + _BLOCK_SIZE * 2 - 1) // (_BLOCK_SIZE * 2)
         shared_mem = _BLOCK_SIZE * 4  # sizeof(float)
-        # Reinterpret the float32 view as float4 for the kernel signature.
-        _get_kernel()(
+        load("reduction_vec4")(
             (grid,), (_BLOCK_SIZE,), (data, output, n_vec4), shared_mem=shared_mem
         )
 

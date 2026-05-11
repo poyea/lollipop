@@ -1,17 +1,6 @@
-from pathlib import Path
-
 import cupy as cp
 
-_SOURCES_DIR = Path(__file__).parent / "_sources"
-_kernel = None
-
-
-def _get_kernel() -> cp.RawKernel:
-    global _kernel
-    if _kernel is None:
-        source = (_SOURCES_DIR / "prefix_sum.cu").read_text(encoding="utf-8")
-        _kernel = cp.RawKernel(source, "prefix_sum_blelloch")
-    return _kernel
+from lollipop.kernels._raw import load
 
 
 def prefix_sum(data: cp.ndarray) -> cp.ndarray:
@@ -21,5 +10,7 @@ def prefix_sum(data: cp.ndarray) -> cp.ndarray:
 
     result = data.astype(cp.float32).copy()
     shared_mem = n * 4  # sizeof(float)
-    _get_kernel()((1,), (n // 2,), (result, n), shared_mem=shared_mem)
+    load("prefix_sum", "prefix_sum_blelloch")(
+        (1,), (n // 2,), (result, n), shared_mem=shared_mem
+    )
     return result

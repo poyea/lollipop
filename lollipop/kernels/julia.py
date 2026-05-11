@@ -1,18 +1,8 @@
-from pathlib import Path
-
 import cupy as cp
 
-_SOURCES_DIR = Path(__file__).parent / "_sources"
-_kernel = None
+from lollipop.kernels._raw import load
+
 _BLOCK_SIZE = (16, 16)
-
-
-def _get_kernel() -> cp.RawKernel:
-    global _kernel
-    if _kernel is None:
-        source = (_SOURCES_DIR / "julia.cu").read_text(encoding="utf-8")
-        _kernel = cp.RawKernel(source, "julia")
-    return _kernel
 
 
 def julia(
@@ -27,7 +17,7 @@ def julia(
         (width + _BLOCK_SIZE[0] - 1) // _BLOCK_SIZE[0],
         (height + _BLOCK_SIZE[1] - 1) // _BLOCK_SIZE[1],
     )
-    _get_kernel()(
+    load("julia")(
         grid,
         _BLOCK_SIZE,
         (output, width, height, max_iter, cp.float32(c_re), cp.float32(c_im)),

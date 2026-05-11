@@ -1,17 +1,6 @@
-from pathlib import Path
-
 import cupy as cp
 
-_SOURCES_DIR = Path(__file__).parent / "_sources"
-_kernel = None
-
-
-def _get_kernel() -> cp.RawKernel:
-    global _kernel
-    if _kernel is None:
-        source = (_SOURCES_DIR / "bitonic_sort.cu").read_text(encoding="utf-8")
-        _kernel = cp.RawKernel(source, "bitonic_sort")
-    return _kernel
+from lollipop.kernels._raw import load
 
 
 def bitonic_sort(data: cp.ndarray) -> cp.ndarray:
@@ -23,5 +12,5 @@ def bitonic_sort(data: cp.ndarray) -> cp.ndarray:
 
     result = data.astype(cp.float32).copy()
     shared_mem = n * 4  # sizeof(float)
-    _get_kernel()((1,), (n,), (result, n), shared_mem=shared_mem)
+    load("bitonic_sort")((1,), (n,), (result, n), shared_mem=shared_mem)
     return result

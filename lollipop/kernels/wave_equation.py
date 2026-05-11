@@ -1,18 +1,8 @@
-from pathlib import Path
-
 import cupy as cp
 
-_SOURCES_DIR = Path(__file__).parent / "_sources"
-_kernel = None
+from lollipop.kernels._raw import load
+
 _BLOCK_SIZE = (16, 16)
-
-
-def _get_kernel() -> cp.RawKernel:
-    global _kernel
-    if _kernel is None:
-        source = (_SOURCES_DIR / "wave_equation.cu").read_text(encoding="utf-8")
-        _kernel = cp.RawKernel(source, "wave_equation")
-    return _kernel
 
 
 def wave_equation(
@@ -39,7 +29,7 @@ def wave_equation(
         (width + _BLOCK_SIZE[0] - 1) // _BLOCK_SIZE[0],
         (height + _BLOCK_SIZE[1] - 1) // _BLOCK_SIZE[1],
     )
-    kernel = _get_kernel()
+    kernel = load("wave_equation")
 
     for _ in range(steps):
         kernel(

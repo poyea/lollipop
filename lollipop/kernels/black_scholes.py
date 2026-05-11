@@ -1,18 +1,8 @@
-from pathlib import Path
-
 import cupy as cp
 
-_SOURCES_DIR = Path(__file__).parent / "_sources"
-_kernel = None
+from lollipop.kernels._raw import load
+
 _BLOCK_SIZE = 256
-
-
-def _get_kernel() -> cp.RawKernel:
-    global _kernel
-    if _kernel is None:
-        source = (_SOURCES_DIR / "black_scholes.cu").read_text(encoding="utf-8")
-        _kernel = cp.RawKernel(source, "black_scholes")
-    return _kernel
 
 
 def black_scholes(
@@ -28,7 +18,7 @@ def black_scholes(
 
     grid = (n + _BLOCK_SIZE - 1) // _BLOCK_SIZE
 
-    _get_kernel()(
+    load("black_scholes")(
         (grid,),
         (_BLOCK_SIZE,),
         (spot, strike, ttm, rate, vol, call_prices, put_prices, n),

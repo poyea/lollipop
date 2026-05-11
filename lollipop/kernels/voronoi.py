@@ -1,20 +1,8 @@
-from pathlib import Path
-
 import cupy as cp
 
-_SOURCES_DIR = Path(__file__).parent / "_sources"
-_jfa_kernel = None
-_color_kernel = None
+from lollipop.kernels._raw import load
+
 _BLOCK_SIZE = (16, 16)
-
-
-def _get_kernels() -> tuple[cp.RawKernel, cp.RawKernel]:
-    global _jfa_kernel, _color_kernel
-    if _jfa_kernel is None:
-        source = (_SOURCES_DIR / "voronoi.cu").read_text(encoding="utf-8")
-        _jfa_kernel = cp.RawKernel(source, "voronoi_jfa")
-        _color_kernel = cp.RawKernel(source, "voronoi_color")
-    return _jfa_kernel, _color_kernel
 
 
 def voronoi(
@@ -22,7 +10,8 @@ def voronoi(
     height: int = 512,
     num_seeds: int = 64,
 ) -> cp.ndarray:
-    jfa_kernel, color_kernel = _get_kernels()
+    jfa_kernel = load("voronoi", "voronoi_jfa")
+    color_kernel = load("voronoi", "voronoi_color")
 
     grid = (
         (width + _BLOCK_SIZE[0] - 1) // _BLOCK_SIZE[0],

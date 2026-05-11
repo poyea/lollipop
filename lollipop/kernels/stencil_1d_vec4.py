@@ -1,21 +1,10 @@
-from pathlib import Path
-
 import cupy as cp
 import numpy as np
 
+from lollipop.kernels._raw import load
 from lollipop.kernels.stencil_1d import stencil_1d
 
-_SOURCES_DIR = Path(__file__).parent / "_sources"
-_kernel = None
 _BLOCK_SIZE = 256
-
-
-def _get_kernel() -> cp.RawKernel:
-    global _kernel
-    if _kernel is None:
-        source = (_SOURCES_DIR / "stencil_1d_vec4.cu").read_text(encoding="utf-8")
-        _kernel = cp.RawKernel(source, "stencil_1d_vec4")
-    return _kernel
 
 
 def stencil_1d_vec4(data: cp.ndarray, radius: int = 3) -> cp.ndarray:
@@ -49,7 +38,7 @@ def stencil_1d_vec4(data: cp.ndarray, radius: int = 3) -> cp.ndarray:
         n_vec4 = n_aligned // 4
         grid = (n_vec4 + _BLOCK_SIZE - 1) // _BLOCK_SIZE
         shared_mem = (4 * _BLOCK_SIZE + 2 * radius) * 4  # sizeof(float)
-        _get_kernel()(
+        load("stencil_1d_vec4")(
             (grid,),
             (_BLOCK_SIZE,),
             (data, output, np.int32(n_aligned), np.int32(radius)),
@@ -57,10 +46,6 @@ def stencil_1d_vec4(data: cp.ndarray, radius: int = 3) -> cp.ndarray:
         )
 
     if n_aligned < n:
-        # Tail — recompute via the scalar kernel and copy the tail portion.
-        # We also touch the last `radius` aligned elements because their
-        # right-halo extended past n_aligned (clamped) in the vec4 kernel,
-        # whereas the scalar kernel sees the true tail.
         scalar_out = stencil_1d(data, radius=radius)
         overlap = min(n, max(n_aligned - radius, 0))
         output[overlap:] = scalar_out[overlap:]

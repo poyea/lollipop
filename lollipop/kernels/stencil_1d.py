@@ -1,19 +1,9 @@
-from pathlib import Path
-
 import cupy as cp
 import numpy as np
 
-_SOURCES_DIR = Path(__file__).parent / "_sources"
-_kernel = None
+from lollipop.kernels._raw import load
+
 _BLOCK_SIZE = 256
-
-
-def _get_kernel() -> cp.RawKernel:
-    global _kernel
-    if _kernel is None:
-        source = (_SOURCES_DIR / "stencil_1d.cu").read_text(encoding="utf-8")
-        _kernel = cp.RawKernel(source, "stencil_1d")
-    return _kernel
 
 
 def stencil_1d(data: cp.ndarray, radius: int = 3) -> cp.ndarray:
@@ -24,7 +14,7 @@ def stencil_1d(data: cp.ndarray, radius: int = 3) -> cp.ndarray:
     grid = (n + _BLOCK_SIZE - 1) // _BLOCK_SIZE
     shared_mem = (_BLOCK_SIZE + 2 * radius) * 4
 
-    _get_kernel()(
+    load("stencil_1d")(
         (grid,),
         (_BLOCK_SIZE,),
         (data, output, np.int32(n), np.int32(radius)),

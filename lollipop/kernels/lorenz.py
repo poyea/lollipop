@@ -1,19 +1,9 @@
-from pathlib import Path
-
 import cupy as cp
 import numpy as np
 
-_SOURCES_DIR = Path(__file__).parent / "_sources"
-_kernel = None
+from lollipop.kernels._raw import load
+
 _BLOCK_SIZE = 256
-
-
-def _get_kernel() -> cp.RawKernel:
-    global _kernel
-    if _kernel is None:
-        source = (_SOURCES_DIR / "lorenz.cu").read_text(encoding="utf-8")
-        _kernel = cp.RawKernel(source, "lorenz")
-    return _kernel
 
 
 def lorenz(
@@ -31,7 +21,7 @@ def lorenz(
 
     grid = (num_trajectories + _BLOCK_SIZE - 1) // _BLOCK_SIZE
 
-    _get_kernel()(
+    load("lorenz")(
         (grid,),
         (_BLOCK_SIZE,),
         (
