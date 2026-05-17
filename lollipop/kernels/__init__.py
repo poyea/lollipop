@@ -10,6 +10,8 @@ from lollipop.kernels.lbm import lbm
 from lollipop.kernels.lorenz import lorenz
 from lollipop.kernels.mandelbrot import mandelbrot
 from lollipop.kernels.matrix_transpose import matrix_transpose
+from lollipop.kernels.matrix_transpose_naive import matrix_transpose_naive
+from lollipop.kernels.matrix_transpose_nopad import matrix_transpose_nopad
 from lollipop.kernels.monte_carlo_option import monte_carlo_option
 from lollipop.kernels.nbody import nbody
 from lollipop.kernels.prefix_sum import prefix_sum
@@ -41,6 +43,8 @@ __all__ = [
     "lorenz",
     "mandelbrot",
     "matrix_transpose",
+    "matrix_transpose_naive",
+    "matrix_transpose_nopad",
     "monte_carlo_option",
     "nbody",
     "prefix_sum",
