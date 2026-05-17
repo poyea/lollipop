@@ -18,6 +18,7 @@ from lollipop.kernels import prefix_sum
 from lollipop.kernels import radix_sort
 from lollipop.kernels import reaction_diffusion
 from lollipop.kernels import reduction
+from lollipop.kernels import reduction_v2
 from lollipop.kernels import reduction_vec4
 from lollipop.kernels import shared_reduce_2d
 from lollipop.kernels import shared_reduce_2d_vec4
@@ -51,6 +52,7 @@ __all__ = [
     "radix_sort",
     "reaction_diffusion",
     "reduction",
+    "reduction_v2",
     "reduction_vec4",
     "shared_reduce_2d",
     "shared_reduce_2d_vec4",
