@@ -2,6 +2,7 @@ from lollipop.kernels import baccarat
 from lollipop.kernels import bitonic_sort
 from lollipop.kernels import black_scholes
 from lollipop.kernels import gbm_paths
+from lollipop.kernels import flash_attention
 from lollipop.kernels import gemm_tiled
 from lollipop.kernels import heat_equation
 from lollipop.kernels import histogram
@@ -35,6 +36,7 @@ __all__ = [
     "baccarat",
     "bitonic_sort",
     "black_scholes",
+    "flash_attention",
     "gbm_paths",
     "gemm_tiled",
     "heat_equation",
