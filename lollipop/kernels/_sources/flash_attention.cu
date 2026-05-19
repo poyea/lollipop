@@ -86,7 +86,18 @@ void flash_attention_fwd(
     float m_i = NEG_SENTINEL;
     float l_i = 0.0f;
 
-    const int n_tiles = (N + BC - 1) / BC;
+    // Whole-tile causal skip: under causal masking, any KV tile whose
+    // first column index exceeds the block's largest query row is
+    // entirely above the diagonal for every row in the block.  Skipping
+    // the load + dot product is cheaper than walking and masking.  The
+    // bound is uniform across the block so cooperative loads and
+    // __syncthreads() stay well-formed.
+    const int n_tiles_full = (N + BC - 1) / BC;
+    const int row_block_end = (q_tile + 1) * BR - 1;
+    const int n_tiles_causal = (row_block_end / BC) + 1;
+    const int n_tiles = causal
+        ? (n_tiles_causal < n_tiles_full ? n_tiles_causal : n_tiles_full)
+        : n_tiles_full;
     for (int j_tile = 0; j_tile < n_tiles; ++j_tile) {
         const int j_base = j_tile * BC;
 
