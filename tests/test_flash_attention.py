@@ -35,6 +35,27 @@ def test_flash_attention_matches_reference(BH: int, N: int, causal: bool) -> Non
     assert cp.allclose(actual, expected, atol=1e-3, rtol=1e-3)
 
 
+@pytest.mark.parametrize("BH,N", [(1, 64), (2, 128), (4, 130), (1, 512)])
+@pytest.mark.parametrize("causal", [False, True])
+def test_flash_attention_hmma_matches_reference(BH: int, N: int, causal: bool) -> None:
+    D = 64
+    rng = cp.random.default_rng(0)
+    Q32 = rng.standard_normal((BH, N, D), dtype=cp.float32)
+    K32 = rng.standard_normal((BH, N, D), dtype=cp.float32)
+    V32 = rng.standard_normal((BH, N, D), dtype=cp.float32)
+
+    expected = _reference(Q32, K32, V32, causal)
+
+    Q = Q32.astype(cp.float16)
+    K = K32.astype(cp.float16)
+    V = V32.astype(cp.float16)
+    actual = flash_attention(Q, K, V, causal=causal)
+
+    assert actual.dtype == cp.float16
+    assert actual.shape == expected.shape
+    assert cp.allclose(actual.astype(cp.float32), expected, atol=1e-2, rtol=1e-2)
+
+
 def test_flash_attention_accepts_4d() -> None:
     rng = cp.random.default_rng(1)
     Q = rng.standard_normal((2, 3, 128, 64), dtype=cp.float32)
