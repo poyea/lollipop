@@ -3,6 +3,8 @@ from lollipop.kernels import bitonic_sort
 from lollipop.kernels import black_scholes
 from lollipop.kernels import gbm_paths
 from lollipop.kernels import flash_attention
+from lollipop.kernels import gemm_int4
+from lollipop.kernels import gemm_int8
 from lollipop.kernels import gemm_tiled
 from lollipop.kernels import heat_equation
 from lollipop.kernels import histogram
@@ -38,6 +40,8 @@ __all__ = [
     "black_scholes",
     "flash_attention",
     "gbm_paths",
+    "gemm_int4",
+    "gemm_int8",
     "gemm_tiled",
     "heat_equation",
     "histogram",
