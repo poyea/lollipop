@@ -54,6 +54,13 @@ using namespace nvcuda;
 #define WN 16
 #define WK 16
 
+/* Load-bearing invariant: BK == G means scales/zeros are constant across
+ * the K dimension of any one tile, so each thread loads them once per
+ * K-iter into registers (s_n, z_n below).  If BK != G this kernel is
+ * silently wrong -- the inner dequant loop would use stale scales for
+ * half its K positions. */
+static_assert(BK == G, "gemm_int4 requires BK == G (one group per K-tile)");
+
 extern "C" __global__ __launch_bounds__(128, 2)
 void gemm_int4(const __half*       __restrict__ A,
                const unsigned char* __restrict__ Wq,
