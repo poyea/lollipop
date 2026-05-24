@@ -3,6 +3,7 @@ from lollipop.kernels import bitonic_sort
 from lollipop.kernels import black_scholes
 from lollipop.kernels import gbm_paths
 from lollipop.kernels import flash_attention
+from lollipop.kernels import fused_ffn_tail
 from lollipop.kernels import gemm_int4
 from lollipop.kernels import gemm_int8
 from lollipop.kernels import gemm_tiled
@@ -39,6 +40,7 @@ __all__ = [
     "bitonic_sort",
     "black_scholes",
     "flash_attention",
+    "fused_ffn_tail",
     "gbm_paths",
     "gemm_int4",
     "gemm_int8",
