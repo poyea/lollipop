@@ -13,9 +13,9 @@ def _rmsnorm_ref(x: cp.ndarray, gamma: cp.ndarray, eps: float) -> cp.ndarray:
 def _gelu_tanh(a: cp.ndarray) -> cp.ndarray:
     a32 = a.astype(cp.float32)
     k = 0.7978845608028654
-    return (
-        0.5 * a32 * (1.0 + cp.tanh(k * (a32 + 0.044715 * a32 * a32 * a32)))
-    ).astype(a.dtype)
+    return (0.5 * a32 * (1.0 + cp.tanh(k * (a32 + 0.044715 * a32 * a32 * a32)))).astype(
+        a.dtype
+    )
 
 
 def _silu(a: cp.ndarray) -> cp.ndarray:
@@ -71,9 +71,9 @@ def test_fused_ffn_tail_matches_reference(
         tol = dict(atol=1e-5, rtol=1e-5)
     else:
         tol = dict(atol=3e-3, rtol=3e-3)
-    assert cp.allclose(actual, expected, **tol), (
-        f"max abs err = {float(cp.abs(actual.astype(cp.float32) - expected.astype(cp.float32)).max())}"
-    )
+    assert cp.allclose(
+        actual, expected, **tol
+    ), f"max abs err = {float(cp.abs(actual.astype(cp.float32) - expected.astype(cp.float32)).max())}"
 
 
 def test_fused_ffn_tail_rejects_bad_shape():

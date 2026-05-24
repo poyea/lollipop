@@ -53,9 +53,7 @@ def fused_ffn_tail(
         raise ValueError(
             f"bias must be [{H}] with dtype {x.dtype}; got {bias.shape}, {bias.dtype}"
         )
-    if residual is not None and (
-        residual.shape != (M, H) or residual.dtype != x.dtype
-    ):
+    if residual is not None and (residual.shape != (M, H) or residual.dtype != x.dtype):
         raise ValueError(
             f"residual must be [{M}, {H}] with dtype {x.dtype}; "
             f"got {residual.shape}, {residual.dtype}"
@@ -82,6 +80,15 @@ def fused_ffn_tail(
     load("fused_ffn_tail", kernel_name)(
         (M,),
         (_BLOCK,),
-        (x, gamma, bias_arg, res_arg, y, np.int32(H), np.float32(eps), np.int32(act_id)),
+        (
+            x,
+            gamma,
+            bias_arg,
+            res_arg,
+            y,
+            np.int32(H),
+            np.float32(eps),
+            np.int32(act_id),
+        ),
     )
     return y
