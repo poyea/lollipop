@@ -57,7 +57,11 @@ def test_rope_inplace_safe(dtype):
 
     y = rope(x, cos, sin, out=x)
     assert y is x
-    tol = dict(atol=1e-5, rtol=1e-5) if dtype == cp.float32 else dict(atol=3e-3, rtol=3e-3)
+    tol = (
+        dict(atol=1e-5, rtol=1e-5)
+        if dtype == cp.float32
+        else dict(atol=3e-3, rtol=3e-3)
+    )
     assert cp.allclose(y, expected, **tol)
 
 

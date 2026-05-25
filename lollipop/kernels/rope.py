@@ -80,9 +80,7 @@ def rope(
             f"out must be {x.shape} with dtype {x.dtype}; got {out.shape}, {out.dtype}"
         )
     elif out.strides[1] != elem:
-        raise ValueError(
-            f"out must be contiguous along D; got strides={out.strides}"
-        )
+        raise ValueError(f"out must be contiguous along D; got strides={out.strides}")
     y_stride = out.strides[0] // elem
     if y_stride < D:
         raise ValueError(f"y_stride ({y_stride}) must be >= D ({D})")
