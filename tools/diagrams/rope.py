@@ -32,10 +32,14 @@ def main():
     half_w = 4.0
     # x_lo (left half)
     grid(ax, 0.5, row_y, half_w, row_h, cols=8, rows=1, face=C_IN, highlight=[(0, 3)])
-    label(ax, 0.5 + half_w / 2, row_y + row_h + 0.25, "x_lo  =  x[..., :D/2]", fontsize=10)
+    label(
+        ax, 0.5 + half_w / 2, row_y + row_h + 0.25, "x_lo  =  x[..., :D/2]", fontsize=10
+    )
     # x_hi (right half)
     grid(ax, 4.8, row_y, half_w, row_h, cols=8, rows=1, face=C_IN, highlight=[(0, 3)])
-    label(ax, 4.8 + half_w / 2, row_y + row_h + 0.25, "x_hi  =  x[..., D/2:]", fontsize=10)
+    label(
+        ax, 4.8 + half_w / 2, row_y + row_h + 0.25, "x_hi  =  x[..., D/2:]", fontsize=10
+    )
     # Pair annotation
     cell_w = half_w / 8
     p1x = 0.5 + 3.5 * cell_w
@@ -108,20 +112,56 @@ def main():
     box(ax, 9.5, out_y, 3.2, 0.7, "y written in place", C_OUT, fontsize=10)
 
     # Arrows: x halves + cos/sin -> compute box
-    arrow(ax, (4.0, row_y + row_h / 2), (9.5, 5.3), color="#666", linewidth=1.0,
-          connectionstyle="arc3,rad=-0.15")
-    arrow(ax, (8.4, row_y + row_h / 2), (9.5, 5.5), color="#666", linewidth=1.0,
-          connectionstyle="arc3,rad=-0.05")
-    arrow(ax, (4.4, cy + 0.6), (9.5, 4.9), color="#666", linewidth=1.0,
-          connectionstyle="arc3,rad=0.15")
-    arrow(ax, (8.7, cy + 0.6), (9.5, 4.7), color="#666", linewidth=1.0,
-          connectionstyle="arc3,rad=0.1")
+    arrow(
+        ax,
+        (4.0, row_y + row_h / 2),
+        (9.5, 5.3),
+        color="#666",
+        linewidth=1.0,
+        connectionstyle="arc3,rad=-0.15",
+    )
+    arrow(
+        ax,
+        (8.4, row_y + row_h / 2),
+        (9.5, 5.5),
+        color="#666",
+        linewidth=1.0,
+        connectionstyle="arc3,rad=-0.05",
+    )
+    arrow(
+        ax,
+        (4.4, cy + 0.6),
+        (9.5, 4.9),
+        color="#666",
+        linewidth=1.0,
+        connectionstyle="arc3,rad=0.15",
+    )
+    arrow(
+        ax,
+        (8.7, cy + 0.6),
+        (9.5, 4.7),
+        color="#666",
+        linewidth=1.0,
+        connectionstyle="arc3,rad=0.1",
+    )
 
     # Compute box -> output rows
-    arrow(ax, (11.0, 4.4), (4.5, out_y + 0.35), color="#666", linewidth=1.0,
-          connectionstyle="arc3,rad=0.2")
-    arrow(ax, (11.0, 4.4), (8.8, out_y + 0.35), color="#666", linewidth=1.0,
-          connectionstyle="arc3,rad=0.25")
+    arrow(
+        ax,
+        (11.0, 4.4),
+        (4.5, out_y + 0.35),
+        color="#666",
+        linewidth=1.0,
+        connectionstyle="arc3,rad=0.2",
+    )
+    arrow(
+        ax,
+        (11.0, 4.4),
+        (8.8, out_y + 0.35),
+        color="#666",
+        linewidth=1.0,
+        connectionstyle="arc3,rad=0.25",
+    )
     arrow(ax, (11.0, 4.4), (11.1, out_y + 0.7))
 
     footer(
