@@ -24,6 +24,7 @@ from lollipop.kernels.reaction_diffusion import reaction_diffusion
 from lollipop.kernels.reduction import reduction
 from lollipop.kernels.reduction_v2 import reduction_v2
 from lollipop.kernels.reduction_vec4 import reduction_vec4
+from lollipop.kernels.rope import rope
 from lollipop.kernels.shared_reduce_2d import shared_reduce_2d
 from lollipop.kernels.shared_reduce_2d_vec4 import shared_reduce_2d_vec4
 from lollipop.kernels.softmax import softmax
@@ -62,6 +63,7 @@ __all__ = [
     "reduction",
     "reduction_v2",
     "reduction_vec4",
+    "rope",
     "shared_reduce_2d",
     "shared_reduce_2d_vec4",
     "softmax",
