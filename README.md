@@ -18,6 +18,8 @@ You need CUDA Toolkit 11.8 (well, newer version *may not* work) and an NVIDIA GP
 | [`gemm_tiled`](lollipop/kernels/_sources/gemm_tiled.cu) | dense fp32 GEMM |
 | [`gemm_int8`](lollipop/kernels/_sources/gemm_int8.cu) | W8A8 INT8 GEMM |
 | [`gemm_int4`](lollipop/kernels/_sources/gemm_int4.cu) | W4A16 weight-only GEMM (AWQ/GPTQ-shaped) |
+| [`fused_ffn_tail`](lollipop/kernels/_sources/fused_ffn_tail.cu) | RMSNorm + bias + GELU/SiLU + residual, fused |
+| [`rope`](lollipop/kernels/_sources/rope.cu) | rotary positional embedding (Llama half-rotation) |
 
 ## License
 MIT
