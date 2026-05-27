@@ -24,6 +24,8 @@ from lollipop.kernels import reaction_diffusion
 from lollipop.kernels import reduction
 from lollipop.kernels import reduction_v2
 from lollipop.kernels import reduction_vec4
+from lollipop.kernels import rmsnorm
+from lollipop.kernels import rmsnorm_backward
 from lollipop.kernels import rope
 from lollipop.kernels import shared_reduce_2d
 from lollipop.kernels import shared_reduce_2d_vec4
@@ -63,6 +65,8 @@ __all__ = [
     "reduction",
     "reduction_v2",
     "reduction_vec4",
+    "rmsnorm",
+    "rmsnorm_backward",
     "rope",
     "shared_reduce_2d",
     "shared_reduce_2d_vec4",
