@@ -15,7 +15,7 @@
  *  contention and lets each thread amortise its smem-tree work over
  *  more bytes.  The trade-off is more registers per thread for the
  *  partial sum chain and (potentially) lower occupancy.  The benchmark
- *  in `bench_reduction_v2.py` shows ITEMS=8 wins on Turing.
+ *  in `bench/reduction_v2.py` shows ITEMS=8 wins on Turing.
  *
  *  Launch (per variant): block=(THREADS,), grid=((n + THREADS*ITEMS - 1)
  *  / (THREADS*ITEMS),), shared_mem = THREADS * sizeof(float).

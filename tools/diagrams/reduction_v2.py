@@ -112,7 +112,7 @@ def main():
         0.3,
         0.45,
         [
-            "Knobs swept in bench_reduction_v2.py: THREADS ∈ {128,256,512,1024}, ITEMS=8 (winner on Turing).",
+            "Knobs swept in bench/reduction_v2.py: THREADS ∈ {128,256,512,1024}, ITEMS=8 (winner on Turing).",
             "ITEMS>1 amortises smem-tree cost over more bytes and shrinks the grid (less atomicAdd contention).",
         ],
     )
