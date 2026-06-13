@@ -2,17 +2,11 @@ import cupy as cp
 import numpy as np
 
 from lollipop.kernels._raw import load
+from lollipop.kernels.prefix_sum import _scan_exclusive
 
 _BLOCK_SIZE = 256
 _BITS_PER_PASS = 4
 _NUM_BUCKETS = 1 << _BITS_PER_PASS
-
-
-def _next_power_of_2(x: int) -> int:
-    p = 1
-    while p < x:
-        p <<= 1
-    return p
 
 
 def radix_sort(data: cp.ndarray) -> cp.ndarray:
@@ -26,37 +20,32 @@ def radix_sort(data: cp.ndarray) -> cp.ndarray:
 
     num_blocks = n // _BLOCK_SIZE
     total_hist = _NUM_BUCKETS * num_blocks
-    scan_threads = _next_power_of_2(total_hist) // 2
-    scan_total = _next_power_of_2(total_hist)
 
     hist_kernel = load("radix_sort", "radix_histogram")
-    scan_kernel = load("radix_sort", "radix_prefix_sum")
     scatter_kernel = load("radix_sort", "radix_scatter")
 
     keys_in = data.copy()
     keys_out = cp.empty_like(keys_in)
-    histograms = cp.zeros(scan_total, dtype=cp.uint32)
+    histograms = cp.empty(total_hist, dtype=cp.uint32)
+    hist_scanned = cp.empty(total_hist, dtype=cp.uint32)
 
     for shift in range(0, 32, _BITS_PER_PASS):
-        histograms[:] = 0
-
         hist_kernel(
             (num_blocks,),
             (_BLOCK_SIZE,),
             (keys_in, histograms, np.int32(n), np.int32(shift)),
         )
 
-        scan_kernel(
-            (1,),
-            (scan_threads,),
-            (histograms, np.int32(scan_total)),
-            shared_mem=scan_total * 4,
-        )
+        # Phase 2: device-wide exclusive scan over the flattened histogram
+        # table (column-major: all blocks' bucket-0 counts, then bucket-1, ...).
+        # The old single-block scan capped this at n=32768; the hierarchical
+        # scan lifts that to arbitrary n.
+        _scan_exclusive(histograms, hist_scanned, "u32")
 
         scatter_kernel(
             (num_blocks,),
             (_BLOCK_SIZE,),
-            (keys_in, keys_out, histograms, np.int32(n), np.int32(shift)),
+            (keys_in, keys_out, hist_scanned, np.int32(n), np.int32(shift)),
         )
 
         keys_in, keys_out = keys_out, keys_in
