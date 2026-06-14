@@ -11,10 +11,13 @@
  *     in shared memory, then writes it to a per-block column in the
  *     global histogram table  [num_blocks x num_buckets].
  *
- *  2. radix_prefix_sum — Exclusive prefix sum over the histogram table
+ *  2. (device-wide scan) — Exclusive prefix sum over the histogram table
  *     (flattened, column-major: all blocks' bucket-0 counts, then all
  *     blocks' bucket-1 counts, ...).  After this, each entry tells the
- *     global output offset for that block's bucket.
+ *     global output offset for that block's bucket.  This phase is the
+ *     hierarchical scan in prefix_sum.cu (scan_block_u32), driven from the
+ *     Python wrapper — it replaced an in-file single-block Blelloch that
+ *     capped n at 32768.
  *
  *  3. radix_scatter — Each block re-reads its tile, recomputes each
  *     key's bucket, looks up the global offset from the scanned
@@ -38,8 +41,7 @@
  *      shift              — bit position for this pass (0, 4, 8, ... 28)
  *
  *  Launch (each kernel): block=(256,), grid=((n+255)/256,)
- *      radix_prefix_sum:  block=(512,), grid=(1,),
- *                         shared_mem = total_histogram_entries * sizeof(uint)
+ *      phase 2 scan:      see prefix_sum.cu / prefix_sum._scan_exclusive
  */
 
 #define BITS_PER_PASS 4
@@ -75,51 +77,7 @@ void radix_histogram(const unsigned int* keys_in,
     }
 }
 
-/* ---- Phase 2: exclusive prefix sum over histogram table ---------- */
-
-extern "C" __global__
-void radix_prefix_sum(unsigned int* histograms, int total) {
-    extern __shared__ unsigned int temp[];
-
-    int tid = threadIdx.x;
-
-    /* Load into shared (two elements per thread, Blelloch style) */
-    temp[2 * tid]     = (2 * tid < total)     ? histograms[2 * tid]     : 0;
-    temp[2 * tid + 1] = (2 * tid + 1 < total) ? histograms[2 * tid + 1] : 0;
-
-    /* Up-sweep */
-    int offset = 1;
-    for (int d = total >> 1; d > 0; d >>= 1) {
-        __syncthreads();
-        if (tid < d) {
-            int ai = offset * (2 * tid + 1) - 1;
-            int bi = offset * (2 * tid + 2) - 1;
-            temp[bi] += temp[ai];
-        }
-        offset *= 2;
-    }
-
-    if (tid == 0) temp[total - 1] = 0;
-
-    /* Down-sweep */
-    for (int d = 1; d < total; d *= 2) {
-        offset >>= 1;
-        __syncthreads();
-        if (tid < d) {
-            int ai = offset * (2 * tid + 1) - 1;
-            int bi = offset * (2 * tid + 2) - 1;
-            unsigned int t = temp[ai];
-            temp[ai] = temp[bi];
-            temp[bi] += t;
-        }
-    }
-
-    __syncthreads();
-
-    /* Write back */
-    if (2 * tid < total)     histograms[2 * tid]     = temp[2 * tid];
-    if (2 * tid + 1 < total) histograms[2 * tid + 1] = temp[2 * tid + 1];
-}
+/* ---- Phase 2 lives in prefix_sum.cu (device-wide hierarchical scan) ---- */
 
 /* ---- Phase 3: stable scatter keys to sorted positions ------------ */
 /*
