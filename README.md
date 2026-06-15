@@ -13,6 +13,9 @@ You need CUDA Toolkit 11.8 (well, newer version *may not* work) and an NVIDIA GP
 | Kernel | What it does |
 |---|---|
 | [`reduction_v2`](lollipop/kernels/_sources/reduction_v2.cu) | sum-reduce a 1D float array |
+| [`reduction_cg`](lollipop/kernels/_sources/reduction_cg.cu) | same sum-reduce via Cooperative Groups `cg::reduce` |
+| [`prefix_sum`](lollipop/kernels/_sources/prefix_sum.cu) | device-wide exclusive scan, hierarchical Blelloch |
+| [`radix_sort`](lollipop/kernels/_sources/radix_sort.cu) | LSD radix sort of uint32 keys, multi-block |
 | [`matrix_transpose`](lollipop/kernels/_sources/matrix_transpose.cu) | 2D fp32 transpose, 32×33 padded smem tile |
 | [`softmax_vec4`](lollipop/kernels/_sources/softmax_vec4.cu) | row-wise softmax with `float4` loads |
 | [`flash_attention_hmma`](lollipop/kernels/_sources/flash_attention_hmma.cu) | FA-2 forward, fp16 in / fp32 accum, `wmma` 16×16×16 |
