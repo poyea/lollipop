@@ -22,6 +22,8 @@ from lollipop.kernels import prefix_sum
 from lollipop.kernels import radix_sort
 from lollipop.kernels import reaction_diffusion
 from lollipop.kernels import reduction
+from lollipop.kernels import reduction_cg
+from lollipop.kernels import reduction_cg_grid
 from lollipop.kernels import reduction_v2
 from lollipop.kernels import reduction_vec4
 from lollipop.kernels import rmsnorm
@@ -63,6 +65,8 @@ __all__ = [
     "radix_sort",
     "reaction_diffusion",
     "reduction",
+    "reduction_cg",
+    "reduction_cg_grid",
     "reduction_v2",
     "reduction_vec4",
     "rmsnorm",
